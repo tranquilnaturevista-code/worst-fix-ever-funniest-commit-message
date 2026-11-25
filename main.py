@@ -3,10 +3,11 @@
 
 Writes one hand-written commit message to ``/output/entry.txt`` (or
 ``$OUTPUT_DIR/entry.txt``). The line is fixed: the same text on every
-run. Before writing, the program checks the line against the
-competition gate - UTF-8 text of 1-100 characters, not only
-whitespace, all on one line - and refuses to write it unless the
-gate passes.
+run - a single 72-character line, so it sits comfortably inside the
+competition gate of 1-100 characters. Before writing, the program
+checks the line against that gate - UTF-8 text of 1-100 characters,
+not only whitespace, all on one line, with no stray leading or
+trailing space - and refuses to write it unless the gate passes.
 """
 
 import os
@@ -26,6 +27,11 @@ def gate_problems(text):
     problems = []
     if not text.strip():
         problems.append("entry is blank or only whitespace")
+    if text != text.strip():
+        # A stray space at either end would be invisible in the
+        # entry file but still counts toward the 100-character gate,
+        # so reject it rather than silently shipping it.
+        problems.append("entry has leading or trailing whitespace")
     length = len(text)
     if length < GATE_MIN or length > GATE_MAX:
         problems.append(
